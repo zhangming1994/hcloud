@@ -1,0 +1,146 @@
+ <style type="text/css">
+    input[type=checkbox]{opacity: 100;position: static;width: 14px;height: 14px;}
+    .selector{width: 100%;height: 250px;background-color: #FFF;overflow-x: hidden;overflow-y: auto;}
+    .selector .selector-list{list-style: none;margin: 0px;padding: 0px;}
+    .selector .selector-list .selector-item{height: 32px;line-height: 32px;overflow: hidden;border-bottom: 1px solid #DDD;text-overflow: ellipsis;white-space: nowrap;text-indent: 8px;cursor: pointer;}
+    .selector .selector-list .selector-item.active {background-color: #37C;color: #FFF;}
+    .margin-top-50{margin-top: 50px}
+    .toast-bottom-full {bottom: 0;right: 0;width: 20%}
+ </style>
+
+<div id="showAuth" style="display: none">
+    <div class="navbar-left margin-top-50" style="width: 100px;text-align:center;height:183px;padding-top:60px">
+        
+    </div>
+    <div class="navbar-left margin-top-50" style="width: 200px;">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h6>子账号列表</h6>
+            </div>
+            <div class="">
+                <div class="selector">
+                    <ul class="selector-list">
+                        {{range $key,$item := .list}}
+                        <li class="selector-item" data-id="{{$item.Id}}" data-name="{{$item.Username}}">{{$item.Username}} - {{$item.Nickname}}</li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a class="btn btn btn-primary" onclick="addAuth()" href="javascript:;"><i class="glyphicon glyphicon-arrow-right"></i> 授权</a>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $.ajax({
+            url: '../device/getdevices',
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                if (data != null) {
+                    var lis = "";
+                    $.each(data, function(i){
+                        lis = '<li class="selector-item" data-id="'+data[i].Id+'" data-name="'+data[i].Username+'">'+data[i].Username+'- '+data[i].Nickname+'</li>';
+                    });
+                    $(".selector-list").html(lis);
+                }
+                console.log(data);
+            }
+        })
+    });
+
+   //  function addAuth() {
+   //      idObj = new Array();
+   //      uid = "";
+   //      nickname = "";
+   //      $("input[name='checkboxes']").each(function(index, el) {
+   //        if ($(this).is(':checked')) {
+   //          idObj.push(parseInt($(this).val()));
+   //        };
+   //      });
+
+   //      if (idObj.length <= 0) {
+   //          Notify('请选择设备！', 'top-left', '5000', 'danger', 'fa-exclamation-triangle', true);
+   //          return false;
+   //      };
+
+   //      $(".selector-list > li").each(function(index, el) {
+   //          if ($(this).hasClass('active')) {
+   //              uid = $(this).attr('data-id');
+   //              nickname = $(this).attr('data-name');
+   //          };
+   //      });
+
+   //      if (uid.length <= 0) {
+   //          Notify('请选择要分配的用户！', 'top-left', '5000', 'danger', 'fa-exclamation-triangle', true);
+   //          return false;
+   //      };
+
+   //      confirmContent = '你确定要将这 <span style="color:red">'+idObj.length+'</span> 台设备给 <span style="color:red">'+nickname+'</span> ?';
+   //      bootbox.confirm(confirmContent, function (result) {
+   //          if (result) {
+   //              $.ajax({
+   //                  url: '/hcloud/device/allothandle',
+   //                  type: 'POST',
+   //                  data: {id: idObj,uid: uid},
+   //                  success: function(data){
+   //                      Notify('设备分配成功', 'top-left', '5000', 'success', 'fa-exclamation-triangle', true);
+   //                      oTable.fnReloadAjax(oTable.fnSettings());
+   //                  },
+   //                  error:function(){
+   //                      Notify('分配设备失败', 'top-left', '5000', 'danger', 'fa-exclamation-triangle', true);
+   //                  }
+   //              });
+   //          }
+   //      });
+   //  }
+
+   // // 单个选中
+   //  function checkThis(obj){
+   //      if(obj.checked){ 
+   //          $(obj).parent().parent().addClass('active');
+   //          $("#showAuth").show('400');
+   //      }else{   
+   //          $(obj).parent().parent().removeClass('active');
+   //          query = true;
+   //          $("input[name='checkboxes']").each(function(index, el) {
+   //              if ($(el).prop('checked')){
+   //                  query = false;
+   //              }
+   //          });
+   //          if (query) {
+   //              $("#showAuth").hide('400');
+   //          };
+   //      } 
+   //  }
+
+   //  // 全选反选
+   //  function checkAll(obj) {
+   //      if(obj.checked){   
+   //          $("input[name='checkboxes']").prop("checked", true);
+   //          $("tbody > tr").addClass('active');
+   //          $("#showAuth").show('400');
+   //      }else{   
+   //          $("input[name='checkboxes").prop("checked", false);
+   //          $("tbody > tr").removeClass('active');
+   //          $("#showAuth").hide('400');
+   //      }   
+   //  }
+
+   //  // 选择子帐号
+   //  $(".selector-list > li").click(function(event) {
+   //      if ($(this).hasClass('active')) {
+   //          $(this).removeClass('active');
+   //      }else{
+   //          $(".selector-list > li").removeClass('active');
+   //          $(this).addClass('active');
+   //      }
+   //  });
+
+
+</script>

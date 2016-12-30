@@ -1,0 +1,17 @@
+body {
+     font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+     font-size: 62.5%;
+ }
+/*其他浏览器清楚浮动*/
+/*.clearfloat:after{*/
+    /*display: block;*/
+    /*clear: both;*/
+    /*content: "";*/
+    /*visibility: hidden;*/
+    /*height: 0;*/
+/*}*/
+/*ie
+*/
+.clearfloat{
+    zoom:1;
+}

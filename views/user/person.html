@@ -1,0 +1,218 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>个人信息</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <h5 class="row-title before-blue"><i class="fa fa-user blue"></i>个人信息</h5>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-2 no-padding personPicBorder">
+                            <div>
+                                <div style="height: 80%;">
+                                    <input type="hidden" name="id" id="id" value="{{.userinfo.Id}}" />
+                                    <img src="{{.imgurl}}" alt="" height="100%" width="100%" id="userimg" class="personPic">
+                                </div>
+                                <div style="height: 20%;">
+                                    <button class="btn btn-primary btn-sm" id="selectFile" style="margin-left: 35%; margin-top: 20px;margin-bottom: 20px;">上传照片</button>
+                                    <input type="file" id="upfile" name="fileupload" style="filter: alpha(opacity=0); moz-opacity: 0; opacity: 0;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <table class="table table-hover" id="teams">
+                                <thead>
+                                    <tr role="row">
+                                        <th>账号状态</th>
+                                        <th>工号</th>
+                                        <th>姓名</th>
+                                        <th>职位</th>
+                                        <th>团队</th>
+                                        <th>公司名称</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{.StatusName}}</td>
+                                        <td>{{.userinfo.Empnum}}</td>
+                                        <td>{{.userinfo.Nickname}}</td>
+                                        <td>{{.Rolename}}</td>
+                                        <td>{{.Groupname}}</td>
+                                        <td>{{.user.Companyname}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="margin-bottom-20"></div>
+                            <table class="table table-hover" id="teams">
+                                <thead>
+                                    <tr role="row">
+                                        <th>注册时间</th>
+                                        <th>最后登录</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{.CreateTime}}</td>
+                                        <td>{{.LastLoginTime}}</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-12">
+                <h5 class="row-title before-darkorange"><i class="fa fa-list-alt darkorange"></i>子账号信息</h5>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-toolbar">
+                            <div class="no-padding margin-bottom-5">
+                                {{range $key, $val := .functool}}
+                                    {{if eq $val `user_add`}}
+                                        <a id="adduser" class="btn btn-default" href="../user/add">
+                                            <i class="fa fa-plus-square-o"></i>
+                                            添加账户
+                                        </a>
+                                    {{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                        <table class="table table-hover" id="childusers">
+                            <thead>
+                                <tr role="row">
+                                    <th>账号</th>
+                                    <th>工号</th>
+                                    <th>姓名</th>
+                                    <th>账号状态</th>
+                                    <th>公司名称</th>
+                                    <th>注册时间</th>
+                                    <th>最后登录</th>
+                                    <th>登录日志</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var oTable;
+
+    $(document).ready(function() {
+        oTable = initTable();
+        var userimg = $("#userimg").attr("src");
+        if (userimg == "" || userimg == null) {
+            $("#userimg").attr("src", "/static/img/avatars/userimg.jpg");
+        }
+    });
+
+    $("#selectFile").on("click", function(){
+        var ie = !-[1,];   
+        if(ie){  
+            jQuery('input:file').trigger('click').trigger('change');  
+        }else{  
+            jQuery('input:file').trigger('click');  
+        }
+    });
+
+    $("input:file").change(function(){  
+        var fd = new FormData();
+        fd.append("userid", $("#id").val());
+        fd.append("upload", 1);
+        fd.append("uploadFile", $("#upfile").get(0).files[0]);
+        $.ajax({
+            url: "../user/uploadImg",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: fd,
+            success: function(d) {
+                if (d.status) {
+                    $("#userimg").attr("src", d.img);
+                } else {
+                    $("#userimg").attr("src", d.img);
+                }
+            },
+            error: function(){
+                bootbox.alert({
+                    title: "提示信息",
+                    message: "网络错误",
+                    className: "modal-danger"
+                });
+            }
+        });
+    }); 
+
+    function initTable() {
+        var actionUrl = '../user/person';
+        var table = $('#childusers').dataTable({
+            "bDestory": true,
+            "bRetrieve": true,
+            "bFilter": true,
+            "bAutoWidth": false,
+            "sPaginationType": 'full_numbers',
+            "bPaginate": true, //翻页功能
+            "bDestroy": true,
+            "bProcessing": true,
+            "sAjaxSource": actionUrl,
+            "iDisplayLength": 5,
+            "aLengthMenu": [
+                [5, 10, 15, 20,],
+                [5, 10, 15, 20,]
+            ],
+            "bServerSide": true,
+            "bSort": false,
+            "aoColumns": [
+                { "mDataProp": "Username", }, 
+                { "mDataProp": "Empnum", },
+                { "mDataProp": "Nickname", },
+                { "mDataProp": "Status",
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        if (oData.Status == 1) {
+                            $(nTd).html("<i class='glyphicon glyphicon-ok success'></i>");
+                        } else if (oData.Status == 2) {
+                            $(nTd).html("<i class='glyphicon glyphicon-remove red'></i>");
+                        }
+                    }
+                },
+                { "mDataProp": "Companyname", },
+                { "mDataProp": "Createtimestr", }, 
+                { "mDataProp": "Lastlogintimestr", },
+                {
+                    "mDataProp": "Id",
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        $(nTd).html("<a href=''>登录日志</a>");
+                    }
+                }, 
+            ],
+            "oLanguage": {
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "没有数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfo": "，_START_ - _END_ / 共 _TOTAL_ 条",
+                "sInfoEmpty": "，0 - 0 / 共 0 条",
+                "sInfoFiltered": "",
+                "sSearch": "搜索",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "dom": "<'row'<'col-sm-6'><'col-sm-6'>><'row'<'col-sm-12'tr>><'row'<'col-sm-6 customer-line'li><'col-sm-6'p>>"
+        });
+        return table;
+    }
+</script>

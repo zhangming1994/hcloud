@@ -1,0 +1,208 @@
+<style>
+    .daterangepicker .ranges  { width: 100%; }
+    .daterangepicker .ranges label { width: auto; }
+</style>
+<div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>资源列表</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="resourceMgr">
+                    <div class="table-toolbar">
+                        {{range $key, $val := .functool}}
+                            {{if eq $val `resource_upload_list`}}
+                                <a id="editabledatatable_new" href="/hcloud/resource/uploadindex" class="btn btn-primary">
+                                    上传资源
+                                </a>
+                            {{end}}
+                        {{end}}
+                        {{range $key, $val := .functool}}
+                            {{if eq $val `resource_group_set_list`}}
+                                <a id="editabledatatable_new" href="/hcloud/resource/groupset" class="btn btn-primary">
+                                    资源设置
+                                </a>
+                            {{end}}
+                        {{end}}
+                        {{range $key, $val := .functool}}
+                            {{if eq $val `resourcetype_list`}}
+                                <a class="btn btn-primary" href="../resource/typelist">资源类型</a>
+                            {{end}}
+                        {{end}}
+                    </div>
+                    <div>
+                        <label>日期：</label>
+                        <input type="text" name="TradeTime" value="" placeholder="请输入查询时间范围" id="TradeTime" class=" input-sm width-200"/>
+                        <label>团队名称</label>
+                        <select class="input-sm width-200" id="searchTeam">
+                            <option value="0">选择团队</option>
+                        {{range $k,$v:=.team}}
+                            <option value="{{$v.Id}}">{{$v.Name}}</option>
+                        {{end}}
+                        </select>
+                        <label>使用者</label>
+                        <input  type="text" name="teamadmin" id="teamadmin" class="input-sm width-200">
+                        <button class="btn btn-default seniorbtn" onclick="queryTeam()"><i class="fa fa-search"></i>查询</button>
+                    </div>
+                    <table class="table table-hover" id="example">
+                        <thead>
+                            <tr role="row">
+                                <th></th>
+                                <th>日期</th>
+                                <!-- <th style="width: 17%">资源类型</th> -->
+                                <th>总资源量</th>
+                                <th>已消耗</th>
+                                <th>可使用</th>
+                                <th>所属团队</th>
+                                <th>使用者</th>
+                                <th>使用率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data_body">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+<script type="text/javascript">
+
+
+var datainfo = [];
+function format(d){
+    var html = "";
+    $.ajax({
+        url: '../resource/typedeta',
+        type: 'get',
+        async:false,
+        dataType:'json',
+        data: {
+            "AddTime":d.ResourceDate,
+            "Name":d.Name,
+        },
+        success:function(data){
+            if (data != null) {
+                    datainfo=data;
+                }
+            }
+    });
+    if (datainfo.length != 0) {
+        for (var i = 0; i < datainfo.length; i++) {
+            html += '<table class="resTable-info table table-bordered" cellpadding="10" cellspacing="0" border="0">'+
+                '<tr>'+
+                    '<td style="width: 15%">'+datainfo[i].AddTime+'</td>'+
+                    // '<td style="width: 18%">'+datainfo[i].ResourceType+'</td>'+
+                    '<td style="width: 15%">'+datainfo[i].TotalResource+'</td>'+
+                    '<td style="width: 15%">'+datainfo[i].UsdeResource+'</td>'+
+                    '<td style="width: 14%">'+datainfo[i].CanUseResource+'</td>'+
+                    '<td style="width: 14%">'+datainfo[i].Team+'</td>'+
+                    '<td style="width: 14%">'+datainfo[i].Username+'</td>'+
+                    '<td style="width: 17%">'+datainfo[i].UsePersent+"%"+'</td>'+
+                '</tr>'+
+            '</table>';
+        }
+    } else {
+        html += '<table class="resTable-info table table-bordered" cellpadding="10" cellspacing="0" border="0">'+
+            '<tr>'+
+                '<td colspan="7">无数据</td>'+
+            '</tr>'+
+        '</table>';
+    }
+    datainfo="";
+    return html;
+}
+
+$(document).ready(function(){
+     var actionUrl = '../resource/list';
+    var table = $('#example').DataTable( {
+        "sAjaxSource": actionUrl,
+        "bDestory": true,
+        "bRetrieve": true,
+        "bFilter": true,
+        "bAutoWidth": false,
+        "bPaginate": true, //翻页功能
+        "bDestroy": true,
+        "bProcessing": true,
+        "sAjaxSource": actionUrl,
+        "iDisplayLength": 10,
+        "bServerSide": true,
+        "bSort": false,
+        "columns": [
+            {
+                "class":          'details-control',
+                "orderable":      true,
+                "data":           null,
+                "defaultContent": '<i class="fa fa-plus-square-o">'
+            },
+            { "data": "ResourceDate"},
+            // { "data": "ResourceType"},
+            { "data": "TotalResource"},
+            { "data": "UsdeResource"},
+            { "data": "CanUseResource"},
+            {"data":"Name"},
+            {"data":"UseAdmin"},
+            { "data": "UsePersent"}
+        ],
+        "order": [[1, 'asc']],
+        "oLanguage": {
+            "sProcessing": "正在加载中...",
+            "sLengthMenu": "每页显示 _MENU_ 条记录",
+            "sZeroRecords": "没有数据！",
+            "sEmptyTable": "表中无数据存在！",
+            "sInfo": "_START_ - _END_ / 共 _TOTAL_ 条",
+            "sInfoEmpty": "0 - 0 / 共 0 条",
+            "sInfoFiltered": "",
+            "sSearch": "搜索",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        },
+        "dom": "<'row'<'col-sm-6'><'col-sm-6'>><'row'<'col-sm-12'tr>><'row'<'col-sm-6 customer-line'i><'col-sm-6'p>>"
+    } );
+
+    $('#example tbody').on('click','td.details-control',function(){
+        var tr=$(this).closest('tr');
+        var row=table.row(tr);
+        if (row.child.isShown()){
+            row.child.hide();
+            tr.removeClass('shown');
+        }else{
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+        }
+    });
+});
+
+
+
+
+    $(function() {
+        $('#TradeTime').daterangepicker(null, function(start, end, label) {
+          console.log(start.toISOString(), end.toISOString(), label);
+        });
+    });
+
+    function queryTeam(){
+        var times=$("#TradeTime").val();
+        var team=$("#searchTeam option:selected").val();
+        var adminuser=$("#teamadmin").val(); 
+        console.info(times,team,adminuser);
+        $('#example').DataTable().column(0).search(times).column(1).search(team).column(2).search(adminuser).draw();
+        $("#teamadmin").val("");
+};
+        
+    
+    
+</script>
+<link rel="stylesheet" type="text/css" media="all" href="/static/lib/daterangepicker/daterangepicker-bs3.css" />
+<script type="text/javascript" src="/static/lib/daterangepicker/moment.js"></script>
+<script type="text/javascript" src="/static/lib/daterangepicker/daterangepicker.js"></script>

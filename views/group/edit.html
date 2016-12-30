@@ -1,0 +1,154 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>修改团队</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div id="horizontal-form">
+                            <form role="form" id="addteamform" class="form-horizontal bv-form"
+                                data-bv-message="This value is not valid" data-bv-feedbackicons-invalid="glyphicon glyphicon-remove"
+                                data-bv-feedbackicons-validating="glyphicon glyphicon-refresh" novalidate="novalidate">
+                                <div class="form-group">
+                                    <label for="inputGroupname3" class="col-sm-4 control-label no-padding-right">团队名称：</label>
+                                    <div class="col-sm-8">
+                                        <input type="hidden" id="id" name="id" value="{{.group.Id}}" />
+                                        <input type="text" class="form-control input-sm" id="groupname" name="groupname" placeholder="请输入团队名称" data-bv-notempty="true" data-bv-notempty-message="团队名称不能为空" data-bv-field="groupname" value="{{.group.Name}}" />
+                                        <i class="form-control-feedback" data-bv-field="groupname" style="display: none;"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputUserName3" class="col-sm-4 control-label no-padding-right">管理者：</label>
+                                    <div class="col-sm-8">
+                                        <select id="uid" style="width: 250.98px;">
+                                            {{range $k,$v := .users}}
+                                                <option value="{{$v.Id}}">{{$v.Nickname}}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputUserName3" class="col-sm-4 control-label no-padding-right">上级团队：</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control input-sm" name="fid" id="fid">
+                                            {{if eq .userinfo.Username .adminuser}}
+                                                <option value="1">顶级团队</option>
+                                            {{end}}
+                                            {{range $k,$v := .groups}}
+                                                <option value="{{$v.Id}}">{{$v.Name}}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputUserName3" class="col-sm-4 control-label no-padding-right">状态：</label>
+                                    <div class="col-sm-8 no-padding">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="status" checked="checked" value="1">
+                                                <span class="text">开启 </span>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="status" value="2">
+                                                <span class="text">关闭 </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputRemark3" class="col-sm-4 control-label no-padding-right">团队备注：</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="3" placeholder="请输入用户备注" id="remark" style="resize: none;">{{.group.Remark}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="col-sm-offset-5 col-sm-7">
+                                    <input type="button" id="submitBtn" class="btn btn-primary btn-sm margin-right-20" value="确认" />
+                                    <a class="btn btn-default btn-sm" href="../group/list">取消</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    
+    $("#uid").select2();
+    
+
+    $(document).ready(function(){
+        // 校验
+        console.log({{.group.Uid}});
+        $("#addteamform").bootstrapValidator();
+        $("#uid").val({{.group.Uid}}).trigger("change");
+        $("#fid option[value='{{.group.Fid}}']").attr("selected", true);
+        $("input[name='status'][value='{{.group.Status}}']").attr("checked", true);
+    });
+
+    $("#submitBtn").on("click", function(){
+        // 团队名称
+        var id = $("#id").val();
+        var groupname = $("#groupname").val();
+        var status = $("input[name='status']:checked").val();
+        var fid = $("#fid option:selected").val();
+        var uid = $("#uid option:selected").val();
+        var remark = $("#remark").val();
+        $.ajax({
+            url: '../group/edit',
+            type: 'post',
+            data: {
+                id: id,
+                groupname: groupname,
+                status: status,
+                uid: uid,
+                fid: fid,
+                remark: remark
+            },
+            success: function(data) {
+                if (data.status) {
+                    bootbox.confirm({
+                        title: "提示信息",
+                        message: data.info,
+                        buttons: {
+                            confirm: {
+                                label: "确认",
+                                className: "btn-sm btn-primary"
+                            },
+                            cancel: {
+                                label: "取消",
+                                className: "btn-sm btn-default"
+                            }
+                        },
+                        callback: function(result){
+                            if (result) {
+                                location.href = "../group/list";
+                            } else {
+                                location.href = "../group/list";
+                            }
+                        }
+                    });
+                } else {
+                    bootbox.alert({
+                        title : "提示信息",
+                        message: data.info,
+                        className: 'modal-danger'
+                    });
+                }
+            },
+            error: function() {
+                bootbox.alert({
+                    title : "提示信息",
+                    message: "网络错误",
+                    className: 'modal-danger'
+                });
+            }
+        });
+    });
+</script>

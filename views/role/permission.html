@@ -1,0 +1,163 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+             <h4><strong>分配权限</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <h5 class="row-title before-blue">分配权限</h5>
+                <div class="well invoice-container">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-8">
+                                {{range .nodetree}}
+                                    <div class="checkbox margin-top-5">
+                                        <label class="parentlabel">
+                                            <input type="checkbox" name="nodeid" class="parent-box" value="{{.Id}}" />
+                                            <span class="text"><span class="label blue"><b>{{.Text}}</b></span></span>
+                                        </label>
+                                        <div class="checkbox margin-top-5 margin-left-40">
+                                            {{range .Children}}
+                                                <label class="childrenlabel">
+                                                    <input type="checkbox" name="nodeid" class="children-box" value="{{.Id}}" />
+                                                    <span class="text">{{.Text}}</span>
+                                                </label>
+                                            {{end}}
+                                        </div>
+                                    </div>
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 margin-top-20">
+                            <div class="padding-left-30">
+                                <input type="hidden" name="roleid" id="roleid" value="{{.roleid}}" />
+                                <button class="btn btn-primary" id="setClick">分配权限</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        var nodes = {{.nodes}};
+        
+        // 为管理员时不让修改权限
+        var roleid = $("#roleid").val();
+        if (roleid == 1) {
+            $("input[name='nodeid']").attr("checked", true);
+            $("#setClick").attr('disabled',true);
+        } else {
+            // 勾选已有的 权限
+            var arr = document.getElementsByName("nodeid");
+            for (var i = 0;i < arr.length; i++) {
+                if (nodes != null) {
+                    for (var j = 0; j < nodes.length; j++) {
+                        if (nodes[j].Id == arr[i].value) {
+                            arr[i].checked = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        $("#setClick").click(function() {
+            // 获取所有的资源ids [资源Id是所有资源Id 拼接而成的字符串]
+            var ids, v = "";
+            var arr = document.getElementsByName("nodeid");
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].checked) {
+                    v += arr[i].value + ",";
+                }
+            }
+            // 去掉字符串最后一位的逗号[,]
+            v = v.substring(0, v.length-1);
+            ids = v;
+            $.ajax({
+                type : "post",
+                url : "../role/allotnode",
+                data : { id: roleid, ids: ids },
+                dataType : "json",
+                success : function(data){
+                    if (data.status) {
+                        bootbox.confirm({
+                            title: "提示信息",
+                            message: data.info,
+                            buttons: {
+                                confirm: {
+                                    label: "确认",
+                                    className: "btn-sm btn-primary"
+                                },
+                                cancel: {
+                                    label: "取消",
+                                    className: "btn-sm btn-default"
+                                }
+                            },
+                            callback: function(result){
+                                if (result) {
+                                    location.href = "../role/list";
+                                } else {
+                                    location.href = "../role/list";
+                                }
+                            }
+                        });
+                    } else {
+                        bootbox.alert({
+                            title: "提示信息",
+                            message: data.info,
+                            className: "modal-danger"
+                        });
+                    }
+                },
+                error : function(data) {
+                    bootbox.alert({
+                        title: "提示信息",
+                        message: "网络错误",
+                        className: "modal-danger"
+                    });
+                }
+            });
+        });
+
+        // 全选和反选
+        $(".parentlabel").click(function(){
+            if($(this).children("input").prop("checked")){
+               $(this).siblings("div").find("label").children(".children-box").prop("checked",true);
+            }else{
+                $(this).siblings("div").find("label").children(".children-box").prop("checked",false);
+            }
+        });
+
+        // 选中子元素，父元素选中，子元素全部不选，父元素不选
+        $(".childrenlabel").click(function(){
+            // 获取line2 下面父元素[line1]下的 span
+            var cbox = $(this).parent().find("label");
+            // 定义一个数量[选中的数量]
+            var countnum = 0;
+            for(var i = 0; i < cbox.length; i++){
+                // 判断 子元素 的状态是否为 true
+                if($(this).parent().children("label").children(".children-box").eq(i).prop("checked")){
+                    // 状态为true则 选中的数量自增1
+                    countnum++;
+                }
+            }
+            // 如果 选中数量为0
+            if(countnum == 0) {
+            // 该子元素的父元素状态设为 false
+                $(this).parent().parent().children("label").children(".parent-box").prop("checked", false);
+            }else{
+                // 该子元素的父元素状态设为 true
+                $(this).parent().parent().children("label").children(".parent-box").prop("checked", true);
+            }
+        });
+    });
+
+    
+</script>

@@ -1,0 +1,383 @@
+ <style type="text/css">
+    .selector{width: 100%;height: 250px;background-color: #FFF;overflow-x: hidden;overflow-y: auto;}
+    .selector .selector-list{list-style: none;margin: 0px;padding: 0px;}
+    .selector .selector-list .selector-item{height: 32px;line-height: 32px;overflow: hidden;border-bottom: 1px solid #DDD;text-overflow: ellipsis;white-space: nowrap;text-indent: 8px;cursor: pointer;}
+    .selector .selector-list .selector-item.active {background-color: #37C;color: #FFF;}
+    .margin-top-50{margin-top: 50px}
+    .toast-bottom-full {bottom: 0;right: 0;width: 20%}
+ </style>
+<div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>手机列表</strong></h4>
+        </ul>
+    </div>
+
+    <div class="page-body">
+    	<div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12">
+            	<div class="table-toolbar">
+                    <div class="no-padding margin-bottom-10">
+                        <span class="margin-right-10 pointer active" onclick="searchByStatus(this, -1)">全部(<span style="color: #999999;">{{.allcount}}</span>)</span>
+                        <span class="margin-right-10 pointer" onclick="searchByStatus(this, 1)">已分配(<span style="color: #999999;">{{.count1}}</span>)</span>
+                        <span class="margin-right-10 pointer" onclick="searchByStatus(this, 2)">未分配(<span style="color: #999999;">{{.count2}}</span>)</span>
+                        <span class="margin-right-10 pointer" onclick="seniorSearch()">高级筛选</span>
+                    </div>
+                    <div class="margin-bottom-10 display-none" id="senior">
+                        <img src="/static/img/seniortips.png"/>
+                        <div class="seniorTitle">
+                          <b>高级筛选</b>
+                          <div class="seniorClose" onclick="seniorClose()">
+                            <span>收起<i class="glyphicon glyphicon-remove"></i></span>
+                          </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12 no-padding margin-bottom-10">
+                            <!-- <select class="input-sm" id="searchStatus">
+                                <option value="-1">全部状态</option>
+                                <option value="0">未分配</option>
+                                <option value="1">分配</option>
+                            </select> -->
+
+                        </div>
+                        <div class="no-padding margin-bottom-10">
+                            
+                            群控账户：<select class="input-sm" id="searchCloud">
+                                <option value="0">选择群控账户</option>
+                                    {{range .couldlist}}
+                                        <option value="{{.Id}}">{{.Username}}</option>
+                                    {{end}}
+                            </select>
+
+                            使用者/用户名：<input type="text" class="input-sm" id="searchUserName" placeholder="请输入使用者/用户名">
+
+                            <button class="btn btn-default btnSreach" onclick="queryUser()">
+                              <i class="fa fa-search"></i>查询
+                            </button>
+                            
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="no-padding">
+                        <select class="input-sm" id="searchBatch">
+                            <option value="0">批量操作</option>
+                            <option value="1">分配手机</option>
+                        </select>
+                        <button class="btn btn-default btn-center" onclick="allotDevice()">应用</button>
+                    </div>
+				</div>
+                <table class="table table-hover" id="simpledatatable">
+                	<thead>
+                        <tr role="row">
+                            <th><input type="checkbox" onclick="checkAll(this)"></th>
+                            <th>序号</th>
+                            <th>所属群控账号</th>
+                            <th>使用者/用户名</th>
+                            <th>状态</th>
+                            <th>Uuid</th>
+                            <th>IMEI</th>
+                            <th>固件版本</th>
+                            <th>版本号</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data_body"></tbody>
+                </table>
+            </div>
+    	</div>
+    </div>
+</div>
+
+<script type="text/javascript">
+	var oTable;
+
+    $(document).ready(function(){
+        oTable = initTable();
+    });
+
+    function initTable() {
+        var actionUrl = '../device/list';
+        var table = $('#simpledatatable').dataTable({
+            "bDestory": true,
+            "bRetrieve": true,
+            "bFilter": true,
+            "bAutoWidth": false,
+            "sPaginationType": 'full_numbers',
+            "bPaginate": true, //翻页功能
+            "bDestroy": true,
+            "bProcessing": true,
+            "sAjaxSource": actionUrl,
+            "iDisplayLength": 15,
+            "aLengthMenu": [
+                [10, 15, 20, 50, -1],
+                [10, 15, 20, 50, "All"]
+            ],
+            "bServerSide": true,
+            "bSort": false,
+            "aoColumns": [
+                {"mDataProp": "Id",
+                    "fnCreatedCell":function(nTd,sData,oData,iRow,iCol){
+                        $(nTd).html("<input type='checkbox' onclick='checkThis(this)' name='ids' value='" + oData.Id + "' />"); 
+                    }
+                },
+                { "data": null, "targets": 0,
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        var api = this.api();
+                        var startIndex= api.context[0]._iDisplayStart;//获取到本页开始的条数
+                        api.column(1).nodes().each(function(cell, i) {
+                    　　　　cell.innerHTML =  i + 1;
+                    　　}); 
+                    }
+                },
+                {"mDataProp": "CloudName",},
+                {"mDataProp": "NickName",
+                    "fnCreatedCell":function(nTd,sData,oData,iRow,iCol){
+                        if (oData.Statues == 0) {
+                            $(nTd).html("-");
+                        }else{
+                            $(nTd).html("<span class='databox-number sky' href=''>"+sData+"/"+oData.Username+"</span>"); 
+                        }
+                    }
+                },
+                {"mDataProp": "Statues",
+                    "fnCreatedCell":function(nTd,sData,oData,iRow,iCol){
+                        if (sData == 0) {
+                            $(nTd).html("<span class='databox-number green'>未分配</span>");
+                        } else {
+                            $(nTd).html("<span class='databox-text darkgray'>已分配</span>");
+                        }
+                    }
+                },
+                {"mDataProp": "Uuid",},
+                {"mDataProp": "Imei",},
+                {"mDataProp": "SdkVersion",},
+                {"mDataProp": "Version",},
+                {"mDataProp": "Remark",},
+            ],
+            "oLanguage": {
+                "sProcessing": "正在加载中...",
+                "sLengthMenu": "每页显示 _MENU_ 条记录，",
+                "sZeroRecords": "没有数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfo": "_START_ - _END_ / 共 _TOTAL_ 条",
+                "sInfoEmpty": "0 - 0 / 共 0 条",
+                "sInfoFiltered": "",
+                "sSearch": "搜索",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "dom": "<'row'<'col-sm-6'><'col-sm-6'>><'row'<'col-sm-12'tr>><'row'<'col-sm-6 customer-line'i><'col-sm-6'p>>"
+        });
+        return table;
+    }
+    
+    // 刷新表格
+    $.fn.dataTableExt.oApi.fnReloadAjax = function(oSettings) {
+        this.fnClearTable(this);
+        this.oApi._fnProcessingDisplay(oSettings, true);
+        var that = this;
+        $.getJSON(oSettings.sAjaxSource, null, function(json) {
+            for (var i = 0; i < json.aaData.length; i++) {
+                that.oApi._fnAddData(oSettings, json.aaData[i]);
+            }
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            that.fnDraw(that);
+            that.oApi._fnProcessingDisplay(oSettings, false);
+        });
+    }
+
+    // 查询
+    function queryUser() {
+        var searchStatus = $("#searchStatus option:selected").val();
+        var searchCloud = $("#searchCloud option:selected").val();
+        var searchUserName = $("#searchUserName").val();
+        $("#simpledatatable").DataTable().column(0).search(searchStatus).column(1).search(searchCloud).column(2).search(searchUserName).draw();
+    };
+
+    // 状态查询
+    function searchByStatus(obj, id) {
+        $(obj).siblings("span").removeClass("active");
+        $(obj).addClass("active");
+        var searchStatus = id;
+        var searchCloud = $("#searchCloud option:selected").val();
+        var searchUserName = $("#searchUserName").val();
+        $("#simpledatatable").DataTable().column(0).search(searchStatus).column(1).search(searchCloud).column(2).search(searchUserName).draw();
+    }
+
+    // 高级筛选
+    function seniorSearch(){
+        if($("#senior").is(":hidden")){
+            $("#senior").slideDown(200);
+        }
+        else {
+          $("#senior").slideUp(200);
+        }
+        
+    }
+    function seniorClose(){
+        $("#senior").slideUp(200);
+    }
+
+    // 全选反选
+    function checkAll(obj) {
+        if(obj.checked){   
+            $("input[name='ids']").prop("checked", true);
+            $("tbody > tr").addClass('active');
+        }else{   
+            $("input[name='ids").prop("checked", false);
+            $("tbody > tr").removeClass('active');
+        }   
+    }
+
+    // 单个选中
+    function checkThis(obj) {
+        if(obj.checked){ 
+            $(obj).addClass('active');
+            $(obj).parent().parent().addClass('active');
+        }else{
+            $(obj).removeClass('active');
+            $(obj).parent().parent().removeClass('active');
+        }
+    }
+
+    // 选择子帐号
+    $(".selector-list > li").click(function(event) {
+        if ($(this).hasClass('active')) {
+            $(this).removeClass('active');
+        }else{
+            $(".selector-list > li").removeClass('active');
+            $(this).addClass('active');
+        }
+    });
+
+    // 选中账号
+    function activeThis(obj) {
+        if ($(obj).hasClass('active')) {
+            $(obj).siblings().removeClass('active');
+        }else{
+            $(obj).siblings().removeClass('active');
+            $(obj).addClass('active');
+        }
+    }
+
+    // 分配设备
+    function allotDevice() {
+        var searchBatch = $("#searchBatch option:selected").val();
+        if (searchBatch == 1) {
+            var ids = [];
+            var arr = $("input[name='ids']");
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].checked) {
+                    ids.push(arr[i].value);
+                }
+            }
+            if (ids.length <= 0) {
+                bootbox.alert({
+                    title : "提示信息",
+                    message: "请选择手机"
+                });
+                return false;
+            }
+            var html = '<div class="panel panel-default"><div class="panel-heading"><h6>子账号列表</h6></div><div class=""><div class="selector"><ul class="selector-list"></ul></div></div></div>';
+            $.ajax({
+                url: '../device/getdevices',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    var lis = "";
+                    if (data != null) {
+                        $.each(data, function(i){
+                            lis += '<li class="selector-item" data-id="'+data[i].Id+'" data-name="'+data[i].Username+'" onclick="activeThis(this);">'+data[i].Username+'- '+data[i].Nickname+'</li>';
+                        });
+                    } else {
+                        lis += '<li class="selector-item">无数据</li>';
+                    }
+                    $(".selector-list").html(lis);
+                }
+            })
+
+            bootbox.dialog({
+                message: html,
+                title: "分配设备",
+                size: "large",
+                buttons: {
+                    ok: {
+                        label: "确认",
+                        className: "btn-sm btn-primary",
+                        callback: function() {
+                            if ($(".selector-item").hasClass("active")) {
+                                var livalue = $(".selector-item.active").attr("data-id");
+                                $.ajax({
+                                    url: "../device/allothandle",
+                                    type: "post",
+                                    data: { ids: ids, uid: livalue },
+                                    success: function(data) {
+                                        if (data.status) {
+                                            bootbox.confirm({
+                                                title: "提示信息",
+                                                message: data.info,
+                                                buttons: {
+                                                    confirm: {
+                                                        label: "确认",
+                                                        className: "btn-sm btn-primary"
+                                                    },
+                                                    cancel: {
+                                                        label: "取消",
+                                                        className: "btn-sm btn-default"
+                                                    }
+                                                },
+                                                callback: function(result){
+                                                    if (result) {
+                                                        oTable.fnReloadAjax(oTable.fnSettings());
+                                                    } else {
+                                                        oTable.fnReloadAjax(oTable.fnSettings());
+                                                    }
+                                                }
+                                            });
+                                        } else {
+                                            bootbox.alert({
+                                                title: "提示信息",
+                                                message: data.info,
+                                                className: "modal-danger"
+                                            });
+                                        }
+                                    },
+                                    error: function() {
+                                        bootbox.alert({
+                                            title: "提示信息",
+                                            message: "网络错误",
+                                            className: "modal-danger"
+                                        });
+                                    }
+                                });
+                            } else {
+                                bootbox.alert({
+                                    title : "提示信息",
+                                    message: "请选择用户"
+                                });
+                                return false;
+                            }
+                        }
+                    },
+                    cancel: {
+                        label: "取消",
+                        className: "btn-sm btn-default"
+                    }
+                },
+            });
+        } else if (searchBatch == 0) {
+            bootbox.alert({
+                title : "提示信息",
+                message: "请选择批量操作类型",
+                className: 'modal-danger'
+            });
+            return false;
+        }
+        
+    }
+
+</script>

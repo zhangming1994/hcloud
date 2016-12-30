@@ -1,0 +1,396 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>修改用户</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body margin-top-30">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="col-sm-3">
+                    <div id="horizontal-form">
+                        <form role="form" id="edituserform" class="form-horizontal">
+                            <div class="form-group">
+                                <label for="inputUserName3" class="col-sm-4 control-label no-padding-right"><span style="color: red;">※</span>用户名称：</label>
+                                <div class="col-sm-8">
+                                    <input type="hidden" id="id" name="id" value="{{.user.Id}}">
+                                    <input type="text" class="form-control input-sm" name="username" id="username" placeholder="请输入用户名称" value="{{.user.Username}}" />
+                                    <span class="danger display-none"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputCompanyName3" class="col-sm-4 control-label no-padding-right">公司名称：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="companyname" name="companyname" placeholder="请输入公司名称" value="{{.user.Companyname}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputEmpNum3" class="col-sm-4 control-label no-padding-right">员工工号：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="empnum" name="empnum" placeholder="请输入员工工号" value="{{.user.Empnum}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputNickName3" class="col-sm-4 control-label no-padding-right"><span style="color: red;">※</span>员工姓名：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="nickname" name="nickname" placeholder="请输入员工姓名" value="{{.user.Nickname}}" />
+                                    <span class="danger display-none"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputTeam3" class="col-sm-4 control-label no-padding-right"><span style="color: red;">※</span>所属团队：</label>
+                                <div class="col-sm-8">
+                                    <div class="col-sm-9 no-padding">
+                                        <select class="form-control input-sm" id="groupid" name="groupid">
+                                            <option value="">请选择团队</option>
+                                            {{range $k, $v := .groups}}
+                                                <option value="{{$v.Id}}">{{$v.Name}}</option>
+                                            {{end}}
+                                        </select>
+                                        <span class="danger display-none"></span>
+                                    </div>
+                                    <div class="col-sm-3 no-padding">
+                                        <span class="input-group-btn">
+                                            <a class="btn btn-sm btn-primary selectAdd" href="../group/add">添加</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPosition3" class="col-sm-4 control-label no-padding-right"></span>员工职位：</label>
+                                <div class="col-sm-8">
+                                    <div class="col-sm-9 no-padding">
+                                        <select class="form-control input-sm" id="roleid" name="roleid">
+                                            <option value="">请选择职位</option>
+                                            {{range $k, $v := .RoleList}}
+                                                <option value="{{$v.Id}}">{{$v.Name}}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-3 no-padding">
+                                        <span class="input-group-btn">
+                                            <a class="btn btn-sm btn-primary selectAdd" href="../role/add">添加</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">家庭电话：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="familyphone" placeholder="请输入家庭电话" id="familyphone" value="{{.user.Familyphone}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">办公电话：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="officephone" placeholder="请输入办公电话" id="officephone" value="{{.user.Officephone}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">手机号码：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="telphone" placeholder="请输入手机号码" id="telphone" value="{{.user.Telphone}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">电子邮箱：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="email" placeholder="请输入电子邮箱" id="email" value="{{.user.Email}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">微信号/QQ：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="wxorqq" placeholder="请输入微信号/QQ" id="wxorqq" value="{{.user.Wxorqq}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">邮政编码：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="zipcode" placeholder="请输入邮政编码" id="zipcode" value="{{.user.Zipcode}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword3" class="col-sm-4 control-label no-padding-right">联系地址：</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" name="address" placeholder="请输入联系地址" id="address" value="{{.user.Address}}" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputStatus3" class="col-sm-4 control-label no-padding-right">用户状态：</label>
+                                <div class="col-sm-8 no-padding">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="status" checked="checked" value="1">
+                                            <span class="text">正常 </span>
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="status" value="2">
+                                            <span class="text">禁用 </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputStatus3" class="col-sm-4 control-label no-padding-right">用户备注：</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" placeholder="请输入用户备注" id="remark" style="resize: none;">{{.user.Remark}}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-offset-5 col-sm-7">
+                                <input type="button" id="submitBtn" class="btn btn-primary btn-sm" value="确认" />
+                                <a class="btn btn-default btn-sm" href="../user/list">取消</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-sm-4" align="center">
+                    <div class="col-sm-8 no-padding no-margin uploadPic">
+                        <div style="height: 378px; width: 230px;">
+                            <img id="userimg" src="{{.imgurl}}" height="200" width="200">
+                            <div class="padding-30 margin-top-20">
+                                <button class="btn btn-primary btn-sm" id="selectFile">上传照片</button>
+                                <input type="file" id="upfile" name="fileupload" style="filter: alpha(opacity=0); moz-opacity: 0; opacity: 0;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#edituserform").bootstrapValidator();
+
+        $("#groupid option[value='{{.user.Group.Id}}']").attr("selected", true);
+        $("#roleid option[value='{{.user.Role.Id}}']").attr("selected", true);
+        $("input[name='status'][value='{{.user.Status}}']").attr("checked", true);
+
+        var userimg = $("#userimg").attr("src");
+        if (userimg == "" || userimg == null) {
+            $("#userimg").attr("src", "/static/img/avatars/userimg.jpg");
+        }
+    });
+
+    // 校验用户账号
+    $("#username").blur(function(){
+        var username = $(this).val();
+        var reg = /^[0-9a-zA-Z]*$/g;
+        if (username == null || username == "") {
+            $(this).siblings("span").removeClass("display-none");
+            $(this).siblings("span").html("※用户名不能为空");
+            return false;
+        }
+        if (username != null || username != "") {
+            if (username.length > 20) {
+                $(this).siblings("span").removeClass("display-none");
+                $(this).siblings("span").html("※用户名不能大于20个字符");
+                return false;
+            } else {
+                $(this).siblings("span").addClass("display-none");
+                $(this).siblings("span").html("");
+            }
+        }
+        if (!reg.test(username)) {
+            $(this).siblings("span").removeClass("display-none");
+            $(this).siblings("span").html("※用户账号只能输入数字或者字母");
+            return false;
+        }
+    });
+
+    // 校验用户姓名
+    $("#nickname").blur(function(){
+        var nickname = $(this).val();
+        if (nickname != null || nickname != "") {
+            if (nickname.length > 10) {
+                $(this).siblings("span").removeClass("display-none");
+                $(this).siblings("span").html("※用户姓名不能大于10个字符");
+                return false;
+            } else {
+                $(this).siblings("span").addClass("display-none");
+                $(this).siblings("span").html("");
+            }
+        }
+        if (nickname == null || nickname == "") {
+            $(this).siblings("span").removeClass("display-none");
+            $(this).siblings("span").html("※用户姓名不能为空");
+            return false;
+        }
+    });
+
+    // 校验所属团队
+    $("#groupid").blur(function(){
+        var groupid = $(this).val();
+        if (groupid == null || groupid == "") {
+            $(this).siblings("span").removeClass("display-none");
+            $(this).siblings("span").html("※所属团队不能为空");
+            return false;
+        } else {
+            $(this).siblings("span").addClass("display-none");
+            $(this).siblings("span").html("");
+        }
+    });
+
+    $("#selectFile").on("click", function(){
+        var ie = !-[1,];   
+        if(ie){  
+            jQuery('input:file').trigger('click').trigger('change');  
+        }else{  
+            jQuery('input:file').trigger('click');  
+        }
+    });
+
+    $("input:file").change(function(){  
+        var fd = new FormData();
+        fd.append("userid", $("#id").val());
+        fd.append("upload", 1);
+        fd.append("uploadFile", $("#upfile").get(0).files[0]);
+        $.ajax({
+            url: "../user/uploadImg",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: fd,
+            success: function(d) {
+                if (d.status) {
+                    $("#userimg").attr("src", d.img);
+                } else {
+                    $("#userimg").attr("src", d.img);
+                }
+            },
+            error: function(){
+                bootbox.alert({
+                    title: "提示信息",
+                    message: "网络错误",
+                    className: "modal-danger"
+                });
+            }
+        });
+    }); 
+
+    $("#submitBtn").on("click", function(){
+        var id = $("#id").val();
+        var username = $("#username").val();
+        var empnum = $("#empnum").val();
+        var companyname = $("#companyname").val();
+        var nickname = $("#nickname").val();
+        var groupid = $("#groupid option:selected").val();
+        var roleid = $("#roleid option:selected").val();
+        var status = $("input[name='status']:checked").val();
+        var remark = $("#remark").val();
+        var officephone = $("#officephone").val();
+        var familyphone = $("#familyphone").val();
+        var telphone = $("#telphone").val();
+        var email = $("#email").val();
+        var wxorqq = $("#wxorqq").val();
+        var zipcode = $("#zipcode").val();
+        var address = $("#address").val();
+        var reg = /^[0-9a-zA-Z]*$/g;
+        var pwdreg = /^[a-zA-Z0-9!"\#$%&'()*+,-./:;<=>?@\[\\\]^_`\{\|\}\~]{6,20}$/;
+        if (!reg.test(username)) {
+            bootbox.alert({
+                title: "提示信息",
+                message: "只能输入数字或者字母",
+                className: "modal-danger"
+            });
+            return false;
+        }
+        if (username != null || username != "") {
+            if (username.length > 20) {
+                bootbox.alert({
+                    title: "提示信息",
+                    message: "用户名的长度不可超过20个字符",
+                    className: "modal-danger"
+                });
+                return false;
+            }
+        } else {
+            bootbox.alert({
+                title: "提示信息",
+                message: "用户名不能为空",
+                className: "modal-danger"
+            });
+            return false;
+        }
+        if (nickname != null || nickname != "") {
+            if (nickname.length > 10) {
+                bootbox.alert({
+                    title: "提示信息",
+                    message: "姓名的长度不可超过10个字符",
+                    className: "modal-danger"
+                });
+                return false;
+            }
+        } else {
+            bootbox.alert({
+                title: "提示信息",
+                message: "姓名不能为空",
+                className: "modal-danger"
+            });
+            return false;
+        }
+        $.ajax({
+            url: '../user/edit',
+            type: 'post',
+            data: {
+                id: id,
+                username: username,
+                empnum: empnum,
+                groupid: groupid,
+                companyname: companyname,
+                nickname: nickname,
+                roleid: roleid,
+                status: status,
+                remark: remark,
+                officephone: officephone,
+                familyphone: familyphone,
+                telphone: telphone,
+                email: email,
+                wxorqq: wxorqq,
+                zipcode: zipcode,
+                address: address
+            },
+            success: function(data) {
+                if (data.status) {
+                    bootbox.confirm({
+                        title: "提示信息",
+                        message: data.info,
+                        buttons: {
+                            confirm: {
+                                label: "确认",
+                                className: "btn-sm btn-primary"
+                            },
+                            cancel: {
+                                label: "取消",
+                                className: "btn-sm btn-default"
+                            }
+                        },
+                        callback: function(result){
+                            console.log(result);
+                            if (result) {
+                                location.href = "../user/list";
+                            } else {
+                                location.href = "../user/list";
+                            }
+                        }
+                    });
+                } else {
+                    bootbox.alert({
+                        title: "提示信息",
+                        message: data.info,
+                        className: "modal-danger"
+                    });
+                }
+            },
+            error: function() {
+                bootbox.alert({
+                    title: "提示信息",
+                    message: "网络错误",
+                    className: "modal-danger"
+                });
+            }
+        });
+    });
+</script>

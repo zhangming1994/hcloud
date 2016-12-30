@@ -1,0 +1,118 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>添加职位</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div id="horizontal-form">
+                            <form role="form" id="addroleform" class="form-horizontal bv-form"
+                                data-bv-feedbackicons-invalid="glyphicon glyphicon-remove"
+                                data-bv-feedbackicons-validating="glyphicon glyphicon-refresh" novalidate="novalidate">
+                                <div class="form-group">
+                                    <label for="inputPositionName3" class="col-sm-4 control-label no-padding-right">职位名称：</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control input-sm" id="rolename" name="rolename" placeholder="请输入职位名称" data-bv-notempty="true" data-bv-notempty-message="职位名称不能为空" data-bv-field="rolename" />
+                                        <i class="form-control-feedback" data-bv-field="rolename" style="display: none;"></i>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputDescription3" class="col-sm-4 control-label no-padding-right">职位描述：</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="3" placeholder="请输入职位描述" id="description" style="resize: none;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputStatus3" class="col-sm-4 control-label no-padding-right">状态：</label>
+                                    <div class="col-sm-8 no-padding">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="status" checked value="1">
+                                                <span class="text">正常 </span>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="status" value="2">
+                                                <span class="text">禁用 </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-offset-5 col-sm-7">
+                                    <input type="button" id="submitBtn" class="btn btn-primary btn-sm margin-right-20" value="确认" />
+                                    <a class="btn btn-default btn-sm" href="../role/list">取消</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    
+    $(document).ready(function(){
+        // 校验
+        $("#addroleform").bootstrapValidator();
+    });
+
+    // 提交
+    $("#submitBtn").on("click", function() {
+        var rolename = $("#rolename").val();
+        var description = $("#description").val();
+        var status = $("input[name='status']:checked").val();
+        $.ajax({
+            url: '../role/add',
+            type: 'post',
+            data: {
+                rolename: rolename,
+                status: status,
+                description: description
+            },
+            success: function(data) {
+                if (data.status) {
+                    bootbox.confirm({
+                        title: "提示信息",
+                        message: data.info,
+                        buttons: {
+                            confirm: {
+                                label: "确认",
+                                className: "btn-sm btn-primary"
+                            },
+                            cancel: {
+                                label: "取消",
+                                className: "btn-sm btn-default"
+                            }
+                        },
+                        callback: function(result){
+                            if (result) {
+                                location.href = "../role/list";
+                            } else {
+                                location.href = "../role/list";
+                            }
+                        }
+                    });
+                } else {
+                    bootbox.alert({
+                        title : "提示信息",
+                        message: data.info,
+                        className: 'modal-danger'
+                    });
+                }
+            },
+            error: function() {
+                bootbox.alert({
+                    title : "提示信息",
+                    message: "网络错误",
+                    className: 'modal-danger'
+                });
+            }
+        });
+    });
+</script>

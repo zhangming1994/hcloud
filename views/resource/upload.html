@@ -1,0 +1,327 @@
+<style>
+    .daterangepicker .ranges  { width: 100%; }
+    .daterangepicker .ranges label { width: auto; }
+    .btn-file.active { background: #ccc !important; border-color: #ccc !important; cursor: auto;}
+</style>
+<div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>上传资源</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row resoucre">
+            <div class="col-xs-12 col-md-12">
+                <div class="well invoice-container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <div class="container kv-main">
+                                    <form enctype="multipart/form-data" action="/hcloud/resource/upload" method="post" id="postForm">
+                                    <div class="form-group has-feedback">
+                                       <label>资源类型:</label>
+                                        <select class="sourcetype" name="sourcetype" id="sourcetype" style="width: 170px;">
+                                            <option value="0">请首先选择资源类型</option>
+                                            {{range $key,$val:=.List}}
+                                                <option value="{{$val.Id}}">{{$val.TypeName}}</option>
+                                            {{end}}
+                                        </select>
+                                        {{range $key, $val := .functool}}
+                                            {{if eq $val `resourcetype_list`}}
+                                                <a class="btn btn-default" href="../resource/typelist">添加资源类型</a>
+                                            {{end}}
+                                        {{end}}
+                                    </div>
+                                    {{range $key, $val := .functool}}
+                                        {{if eq $val `resource_upload`}}
+                                            <input id="input-id" class="file-loading" type="file" name="file" data-preview-file-type="text" accept="text/plain">
+                                        {{end}}
+                                    {{end}}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <!-- <label>团队名称:</label> -->
+                    <label>日期:</label>
+                    <input type="text" name="TradeTime" value="" placeholder="请输入查询时间范围" id="TradeTime" class=" input-sm width-200"/>
+                    <select class="input-sm width-200" id="searchTeam">
+                            <option value="0">选择团队</option>
+                        {{range $k,$v:=.Team}}
+                            <option value="{{$v.Id}}">{{$v.Name}}</option>
+                        {{end}}
+                        </select>
+                    <!-- <label>资源类型:</label> -->
+                    <select class="input-sm width-200" id="searchResourceType">
+                            <option value="0">选择资源类型</option>
+                        {{range $k,$v:=.List}}
+                            <option value="{{$v.Id}}">{{$v.TypeName}}</option>
+                        {{end}}
+                        </select>
+                    
+                    <button class="btn btn-default seniorbtn" onclick="queryRecord()"><i class="fa fa-search"></i>查询</button>
+                </div>
+                <div class="well invoice-container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <table class="table table-hover" id="example">
+                                <thead>
+                                    <tr role="row">
+                                        <th style="width: 15%">上传日期</th>
+                                        <th>状态</th>
+                                        <th>解析条数</th>
+                                        <th>成功资源</th>
+                                        <th>重复资源</th>
+                                        <th>失败资源</th>
+                                        <th>上传人</th>
+                                        <th>所属团队</th>
+                                        <th>上传资源类型</th>
+                                        <th>上传文件</th>
+                                        <th>处理进度</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data_body"></tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="/static/img/1.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+<script type="text/javascript">
+function changefileINput(){
+    if($(".sourcetype").val()==0) {
+        $("#input-id").attr('disabled',true);
+        $(".btn-file").addClass('active');
+    }else {
+        $("#input-id").removeAttr('disabled');
+        $(".btn-file").removeClass('active');
+    }
+}
+$(document).ready(function(){
+    changefileINput();
+});
+
+    // 添加资源类型
+    $(".resoucre .addtype-icon").click(function(){
+        var inputVal = $(".addtype-ipt input").val();
+        console.log(inputVal);
+        if(inputVal==""){
+            alert("请输入资源分类名");
+            return;
+        }else{ 
+            $.ajax({
+                url:'../resource/resourcetype',
+                type:'POST',
+                data:{
+                    name:inputVal,
+                },
+                success:function(data){
+                    console.info(data);
+                    if (data.status) {
+                    bootbox.confirm({
+                        title: "提示信息",
+                        message: data.info,
+                        buttons: {
+                            confirm: {
+                                label: "确认",
+                                className: "btn-sm btn-primary"
+                            },
+                            cancel: {
+                                label: "取消",
+                                className: "btn-sm btn-default"
+                            },
+                        },
+                        callback: function(result){
+                            if (result) {
+                                location.href = "../resource/uploadindex";
+                            } else {
+                                location.href = "../resource/uploadindex";
+                            }
+                        },
+                    });
+                } else {
+                    bootbox.alert({
+                        title : "提示信息",
+                        message: data.info,
+                        className: 'modal-danger'
+                    });
+                }
+            },
+            });
+        }
+    });
+
+    //插件上传
+    $("#input-id").fileinput({
+        uploadUrl: "../resource/upload", // server upload action
+        language: 'zh',
+        showUpload: false,
+        showPreview: false,
+        showRemove:false,
+        browseClass: "btn btn-primary",
+        maxFileCount:1,
+        allowedFileExtensions: ["txt"],
+        uploadAsync: false,
+        uploadExtraData:function(){
+            return {sourcetype:$("#sourcetype").val()};
+        },
+    }).on("filebatchselected",function(event,data){
+        var res=$("#sourcetype").val();
+        if (res==0){
+            bootbox.alert({
+                title : "提示信息",
+                message: "请选择资源类型",
+                className: 'modal-danger'
+            });
+        return false;
+        }else{
+        $("#input-id").fileinput("upload");
+            bootbox.alert({
+                    title : "提示信息",
+                    message: "文件上传成功，后台处理中......",
+                    className: 'modal-success'
+                });
+            oTable.fnReloadAjax(oTable.fnSettings());
+            }
+        });
+        $('.sourcetype').change(function(){
+            changefileINput();
+        });
+    //清空选择的文件
+    //   function clearFileInput(file){
+    //     var form=document.createElement('form');
+    //     document.body.appendChild(form);
+    //     var pos = file.nextSibling;
+    //     form.appendChild(file);
+    //     form.reset();
+    //     pos.parentNode.insertBefore(file, pos);
+    //     document.body.removeChild(form);
+    // }
+
+/*        function clearFileInput(file){
+            if (file.outerHTML) {  
+                file.outerHTML = file.outerHTML;
+            } else { 
+                file.value = "";
+            }
+        }
+*/
+
+    // 设置定时器 10秒
+    setInterval("myInterval()", 10000);//1000为1秒钟 10秒
+    // 定时刷新表格
+    function myInterval(){
+        oTable.fnReloadAjax(oTable.fnSettings());
+    }
+
+    var oTable;
+
+    $(document).ready(function(){
+        oTable = initTable();
+    });
+
+    function initTable() {
+        var actionUrl = '../resource/uploadindex';
+        var table = $('#example').dataTable({
+            "bDestory": true,
+            "bRetrieve": true,
+            "bFilter": true,
+            "bAutoWidth": false,
+            "bPaginate": true, //翻页功能
+            "bDestroy": true,
+            "bProcessing": true,
+            "sAjaxSource": actionUrl,
+            "iDisplayLength": 10,
+            "bServerSide": true,
+            "bSort": false,
+             "aoColumns": [  
+                {"mDataProp": "UploadDate",},
+                {"mDataProp": "UploadStatus",
+                      "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        if(sData==2){
+                          $(nTd).html("<span style='color:green'>成功</span>");  
+                        }else if(sData==1){
+                          $(nTd).html("<span style='color:red'>失败</span>"); 
+                        }else{
+                         $(nTd).html("<span style='color:#999999'>Processing</span>") 
+                        }
+                    }
+                },
+                {"mDataProp":"TotalNumber",},
+                {"mDataProp":"SuccessNumber",},
+                {"mDataProp":"RepatNumber",},
+                {"mDataProp":"FailuedNumber"},
+                {"mDataProp": "UploadUser",},
+                {"mDataProp":"Team"},
+                {"mDataProp": "CloudResourceType",},
+                {"mDataProp": "UploadName",},
+                {"mDataProp":"Persentage",
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        var persent=sData+"%";
+                        $(nTd).html(persent)
+                    }
+                }
+            ],
+            "oLanguage": {
+                "sProcessing": "正在加载中...",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "没有数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfo": "_START_ - _END_ / 共 _TOTAL_ 条",
+                "sInfoEmpty": "0 - 0 / 共 0 条",
+                "sInfoFiltered": "",
+                "sSearch": "搜索",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "dom": "<'row'<'col-sm-6'><'col-sm-6'>><'row'<'col-sm-12'tr>><'row'<'col-sm-6 customer-line'i><'col-sm-6'p>>"
+        });
+        return table;
+    }
+
+    // 刷新表格
+    $.fn.dataTableExt.oApi.fnReloadAjax = function(oSettings) {
+        this.fnClearTable(this);
+        this.oApi._fnProcessingDisplay(oSettings, true);
+        var that = this;
+        $.getJSON(oSettings.sAjaxSource, null, function(json) {
+            for (var i = 0; i < json.aaData.length; i++) {
+                that.oApi._fnAddData(oSettings, json.aaData[i]);
+            }
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            that.fnDraw(that);
+            that.oApi._fnProcessingDisplay(oSettings, false);
+        });
+    }
+
+     $(function() {
+        $('#TradeTime').daterangepicker(null, function(start, end, label) {
+          console.log(start.toISOString(), end.toISOString(), label);
+        });
+    });
+
+     function queryRecord(){
+         var team=$("#searchTeam option:selected").val();
+         var resourcetype=$("#searchResourceType option:selected").val();
+         var times=$("#TradeTime").val();
+         console.info(team,resourcetype,times)
+         $('#example').DataTable().column(0).search(team).column(1).search(resourcetype).column(2).search(times).draw();
+     }
+
+
+</script>
+<link rel="stylesheet" type="text/css" media="all" href="/static/lib/daterangepicker/daterangepicker-bs3.css" />
+<script type="text/javascript" src="/static/lib/daterangepicker/moment.js"></script>
+<script type="text/javascript" src="/static/lib/daterangepicker/daterangepicker.js"></script>

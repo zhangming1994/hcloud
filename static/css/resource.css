@@ -1,0 +1,40 @@
+.resourceMgr .details-control {
+    width: 30px;
+    cursor: pointer;
+}
+.resourceMgr .resTable-info{
+    width: 98%;
+    margin-left: 20px;
+    margin-bottom: -1px;
+}
+.has-feedback label { margin-bottom: 0; }
+.resoucre .container select{
+    padding: 3px 3px;
+    border-radius: 4px;
+}
+.resoucre .file-input {
+    width: 465px;
+}
+.resoucre .addtype-ipt {
+    width: auto;
+    vertical-align: middle;
+}
+.sourcetype,.teamstatus{
+    display: inline-block;
+    width: auto;
+    height: 30px;
+    padding: 5px;
+    margin: 0 5px;
+    vertical-align: middle;
+    border-radius: 5px;
+}
+.allot-recource select { border-radius: 5px; }
+
+.allot-recource { width: 800px; }
+
+.allot-recource .form-group {
+	line-height: 30px;
+	border-top: none;
+	padding-top: 6px;
+	margin-bottom: 6px;
+}

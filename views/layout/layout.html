@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "/layout/header.html"}}
+<link rel="stylesheet" type="text/css" href="/static/css/login/main.css">
+<body>
+	<!-- Navbar -->
+	<div class="navbar">
+	    <div class="navbar-inner">
+	        <div class="navbar-container">
+	            <div class="navbar-header pull-left">
+	                <a href="/hcloud/index" class="navbar-brand">
+	                    <small>
+	                        <img src="/static/img/logo.png" alt="" />
+	                    </small>
+	                </a>
+	            </div>
+	            <div class="navbar-header pull-right">
+	                <div class="navbar-account">
+	                    <ul class="account-area">
+	                        <li>
+	                            <a class="login-area dropdown-toggle" data-toggle="dropdown">
+	                                <section>
+	                                    <h2><span class="profile"><span>你好，{{.userinfo.Nickname}}</span></span></h2>
+	                                </section>
+	                            </a>
+	                            <ul class="pull-right dropdown-menu dropdown-arrow dropdown-login-area">
+	                                <li class="edit">
+	                                	<a href="/hcloud/user/person?id={{.userinfo.Id}}" class="pull-left">{{.userinfo.Nickname}}</a>
+	                                    <a href="/hcloud/user/person?id={{.userinfo.Id}}" class="pull-right"><i class="fa fa-user"></i> 个人信息 </a> 
+	                                </li>
+	                                <li class="theme-area">
+	                                    <ul class="colorpicker" id="skin-changer">
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#5DB2FF;" rel="/static/css/skins/blue.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#2dc3e8;" rel="/static/css/skins/azure.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#03B3B2;" rel="/static/css/skins/teal.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#53a93f;" rel="/static/css/skins/green.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#FF8F32;" rel="/static/css/skins/orange.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#cc324b;" rel="/static/css/skins/pink.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#AC193D;" rel="/static/css/skins/darkred.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#8C0095;" rel="/static/css/skins/purple.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#0072C6;" rel="/static/css/skins/darkblue.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#585858;" rel="/static/css/skins/gray.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#474544;" rel="/static/css/skins/black.min.css"></a></li>
+	                                        <li><a class="colorpick-btn" href="#" style="background-color:#001940;" rel="/static/css/skins/deepblue.min.css"></a></li>
+	                                    </ul>
+	                                </li>
+	                                <li class="edit">
+                            			<a href="javascript:eidtUserPwd({{.userinfo.Id}});" class="pull-left"> <i class="fa fa-keyboard-o"></i> 修改密码 </a>
+	                                    <a href="/hcloud/logout" class="pull-right"> <i class="fa fa-sign-out"></i>退出 </a>
+	                                </li>
+	                            </ul>
+	                        </li>
+	                    </ul>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+	<!-- /Navbar -->
+    <div class="main-container container-fluid">
+        <div class="page-container">
+        	<div class="page-sidebar" id="sidebar">
+			    <ul class="nav sidebar-menu">
+			        {{range .tree}}
+			            <li>
+				            <a href="{{.Url}}" class="main-box">
+				                <!-- <<img src="/static/img/icons/{{.IconCls}}" alt="placeholder+image"> -->
+				                <span class="{{.IconCls}}"></span>
+				                <div class="main-box-title">{{.Text}}</div>
+				            </a>
+				        </li>
+			        {{end}}
+			    </ul>
+			</div>
+			{{.LayoutContent}}
+		    <div class="footer">
+		        Copyright © 2017 Haoyue Inc, All Rights Reserved.
+	        </div>
+		</div>
+	</div>
+</body>
+<!--  /Body -->
+</html>
+{{template "/layout/footer.html"}}
+<script type="text/javascript">
+	// 修改密码
+    function eidtUserPwd(id) {
+        var editurl = "/hcloud/user/editpwd?id=" + id;
+        $.get(editurl, function(html){
+            // 获取html
+            var modal = bootbox.dialog({
+                title: "修改密码",
+                message: html,
+                buttons: {
+                    OK: {  
+                        label: "确认",  
+                        className: "btn-sm btn-primary",  
+                        callback: function () {
+                            var password = $("#password").val();
+                            var repassword = $("#repassword").val();
+                            if (repassword == null || repassword == "") {
+					            bootbox.alert({
+					                title: "提示信息",
+					                message: "确认密码不能为空",
+					                className: "modal-danger"
+					            });
+					            return false;
+					        } else {
+					            if (repassword != password) {
+					                bootbox.alert({
+					                    title: "提示信息",
+					                    message: "确认密码和密码不一致",
+					                    className: "modal-danger"
+					                });
+					                return false;
+					            }
+					        }
+                            $.ajax({
+                                url: '/hcloud/user/editpwd',
+                                type: 'post',
+                                data: {
+                                    id: id,
+                                    password: password
+                                },
+                                success: function(data) {
+                                    if (data.status) {
+                                        bootbox.alert({
+                                            title : "提示信息",
+                                            message: data.info + "，请重新登录后生效。",
+                                            className: 'modal-success'
+                                        });
+                                    } else {
+                                        bootbox.alert({
+                                            title : "提示信息",
+                                            message: data.info + "，请重新登录后生效。",
+                                            className: 'modal-danger'
+                                        });
+                                    }
+                                },
+                                error: function() {
+                                    bootbox.alert({
+                                        title : "提示信息",
+                                        message: "网络错误",
+                                        className: 'modal-danger'
+                                    });
+                                }
+                            });
+                        }
+                    },
+                    Cancel: {  
+                        label: "取消",  
+                        className: "btn-sm btn-default"
+                    }
+                }
+            });
+        });
+    }
+</script>

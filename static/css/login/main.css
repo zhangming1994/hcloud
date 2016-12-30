@@ -1,0 +1,79 @@
+.nav > li > a {
+  padding: 10px 10px;
+}
+.main-box {
+  float: left;
+  margin: 0 35px;
+  // background-color: #f5f5f5;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.main-box .main-box-title:hover{
+  color: #fb6e52;
+}
+.main-box span {
+  text-align: center;
+  display: inline-block;
+  height: 90px;
+  width: 90px;
+  margin-top: 10px;
+}
+.main-box .usermanage {
+  background-image: url(/static/img/icons/g-usermanage.png);
+  background-size: 100% 100%;
+}
+.main-box .rolemanage{
+  background-image: url(/static/img/icons/g-rolemanager.png);
+  background-size: 100% 100%;
+}
+.main-box .groupmanage{
+  background-image: url(/static/img/icons/g-groupmanage.png);
+  background-size: 100% 100%;
+}
+.main-box .resourcemanage{
+  background-image: url(/static/img/icons/g-resourcemanage.png);
+  background-size: 100% 100%;
+}
+.main-box .mobilemanage{
+  background-image: url(/static/img/icons/g-mobilemanage.png);
+  background-size: 100% 100%;
+}
+.main-box .usermanage:hover{
+  background-image: url(/static/img/icons/usermanage.png);
+  background-size: 100% 100%;
+}
+.main-box .rolemanage:hover{
+  background-image: url(/static/img/icons/rolemanager.png);
+  background-size: 100% 100%;
+}
+.main-box .groupmanage:hover{
+  background-image: url(/static/img/icons/groupmanage.png);
+  background-size: 100% 100%;
+}
+.main-box .resourcemanage:hover{
+  background-image: url(/static/img/icons/resourcemanage.png);
+  background-size: 100% 100%;
+}
+.main-box .mobilemanage:hover{
+  background-image: url(/static/img/icons/mobilemanage.png);
+  background-size: 100% 100%;
+}
+.main-box-title {
+  line-height: 20px;
+  font-size: 14px;
+}
+.sideBar .main-box .limitmanage {
+  background-image: url(/static/img/login/limitmanage.png);
+}
+.sideBar .main-box .resourcesmanger {
+  background-image: url(/static/img/login/resourcesmanger.png);
+}
+.sideBar .main-box .datamanage {
+  background-image: url(/static/img/login/datamanage.png);
+}
+.sideBar .main-box .setmanage {
+  background-image: url(/static/img/login/setmanage.png);
+}
+.sideBar .main-box .usermanage {
+  background-image: url(/static/img/login/usermanage.png);
+}

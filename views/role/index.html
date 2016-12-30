@@ -1,0 +1,203 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>职务列表</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="table-toolbar">
+                    <div class="no-padding">
+                        <select name="status" class="input-sm" id="searchRolestatus">
+                            <option value="0">请选择状态</option>
+                            <option value="1">开启</option>
+                            <option value="2">禁用</option>
+                        </select>
+                        <input type="text" class="input-sm width-200" id="searchRolename" placeholder="请输入角色名称">
+                        
+                        <button class="btn btn-default btn-center" onclick="queryRole()">
+                          <i class="fa fa-search"></i>搜索
+                        </button>
+                        {{range $key, $val := .functool}}
+                            {{if eq $val `role_add`}}
+                                <a id="adduser" class="btn btn-default btn-center" href="../role/add">
+                                    <i class="fa fa-plus-square-o"></i>
+                                    添加
+                                </a>
+                            {{end}}
+                        {{end}}
+                    </div>
+                </div>
+
+                <table class="table table-hover" id="simpledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th>名称</th>
+                            <th>描述</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var oTable;
+    $(document).ready(function() {
+        oTable = initTable();
+
+    });
+
+    function initTable() {
+        var actionUrl = '../role/list';
+        var table = $('#simpledatatable').dataTable({
+            "bFilter": true,
+            "bAutoWidth": false,
+            "sPaginationType": 'full_numbers',
+            "bPaginate": true, //翻页功能
+            "bDestroy": true,
+            "bProcessing": true,
+            "sAjaxSource": actionUrl,
+            "iDisplayLength": 15,
+            "aLengthMenu": [
+                [10, 15, 20, 50, -1],
+                [10, 15, 20, 50, "All"]
+            ],
+            "bServerSide": true,
+            "bSort": false,
+            "aoColumns": [
+                { "mDataProp": "Name", },
+                { "mDataProp": "Description", },
+                { "mDataProp": "Status", 
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        if (oData.Status == 1) {
+                            $(nTd).html("<i class='glyphicon glyphicon-ok success'></i>");
+                        } else if (oData.Status == 2) {
+                            $(nTd).html("<i class='glyphicon glyphicon-remove red'></i>");
+                        } else if (oData.Status == 3) {
+                            $(nTd).html("<i class='glyphicon glyphicon-remove-circle orange'></i>");
+                        }
+                    }
+                }, 
+                { "mDataProp": "Id",
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol) {
+                        var permission = "{{range $key, $val := .functool}}";
+                        permission += "{{if eq $val `role_allocat_permission`}}";
+                        permission += "<a title='分配权限' href='../role/allotnode?id="+ oData.Id +"' class='btn btn-sm'><i class='glyphicon glyphicon-check'></i>权限</a>&nbsp;&nbsp;";
+                        permission += "{{end}}{{end}}";
+                        var edit = "{{range $key, $val := .functool}}";
+                        edit += "{{if eq $val `role_edit`}}";
+                        edit += "<a title='编辑角色' href='../role/edit?id=" + oData.Id + "' class='btn btn-sm'><i class='fa fa-pencil'></i>编辑</a>&nbsp;&nbsp;";
+                        edit += "{{end}}{{end}}";
+                        var del = "{{range $key, $val := .functool}}";
+                        del += "{{if eq $val `role_del`}}";
+                        del += "<a title='删除角色' onclick='delRole(" + oData.Id + ");' class='btn btn-sm'><i class='fa fa-trash-o'></i>删除</a>";
+                        del += "{{end}}{{end}}";
+                        $(nTd).html(permission + edit + del);
+                    }
+                }
+            ],
+            "oLanguage": {
+                "sProcessing": "正在加载中......",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "没有数据！",
+                "sEmptyTable": "表中无数据存在！",
+                "sInfo": "_START_ - _END_ / 共 _TOTAL_ 条",
+                "sInfoEmpty": "0 - 0 / 共 0 条",
+                "sInfoFiltered": "",
+                "sSearch": "搜索",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页"
+                }
+            },
+            "dom": "<'row'<'col-sm-6'><'col-sm-6'>><'row'<'col-sm-12'tr>><'row'<'col-sm-6 customer-line'i><'col-sm-6'p>>"
+        });
+        return table;
+    }
+
+    // 删除用户
+    function delRole(id) {
+        bootbox.confirm({
+            title: "删除角色",
+            message: "确认删除角色吗？",
+            buttons: {
+                confirm: {
+                    label: "确认",
+                    className: "btn-sm btn-primary"
+                },
+                cancel: {
+                    label: "取消",
+                    className: "btn-sm btn-default"
+                }
+            },
+            callback: function(result){
+                if (result) {
+                    $.ajax({
+                        url: '../role/delete',
+                        type: 'post',
+                        data: {
+                            id: id
+                        },
+                        success: function(data) {
+                            if (data.status) {
+                                bootbox.alert({
+                                    title : "提示信息",
+                                    message: data.info,
+                                    className: 'modal-success'
+                                });
+                                oTable.fnReloadAjax(oTable.fnSettings());
+                            } else {
+                                bootbox.alert({
+                                    title : "提示信息",
+                                    message: data.info,
+                                    className: 'modal-danger'
+                                });
+                                oTable.fnReloadAjax(oTable.fnSettings());
+                            }
+                        },
+                        error: function() {
+                            bootbox.alert({
+                                title : "提示信息",
+                                message: "网络错误",
+                                className: 'modal-danger'
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    // table刷新表格
+    $.fn.dataTableExt.oApi.fnReloadAjax = function(oSettings) {
+        this.fnClearTable(this);
+        this.oApi._fnProcessingDisplay(oSettings, true);
+        var that = this;
+
+        $.getJSON(oSettings.sAjaxSource, null, function(json) {
+            for (var i = 0; i < json.aaData.length; i++) {
+                that.oApi._fnAddData(oSettings, json.aaData[i]);
+            }
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            that.fnDraw(that);
+            that.oApi._fnProcessingDisplay(oSettings, false);
+        });
+    }
+    
+    // 模糊查询
+    function queryRole() {
+        var searchRolestatus = $("#searchRolestatus option:selected").val();
+        var searchRolename = $("#searchRolename").val();
+        $("#simpledatatable").DataTable().column(0).search(searchRolestatus).column(1).search(searchRolename).draw();
+    }
+
+</script>

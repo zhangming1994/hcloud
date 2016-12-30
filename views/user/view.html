@@ -1,0 +1,149 @@
+ <div class="page-content">
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <h4><strong>账户信息</strong></h4>
+        </ul>
+    </div>
+    <div class="page-body">
+    	<div class="row">
+    	    <div class="col-xs-12 col-md-12">
+    	        
+                <div class="row">
+                    <div class="col-sm-3" align="center">
+                        <div class="col-sm-11 no-padding no-margin accountInfo">
+                            <div style="height: 310px; width: 230px;">
+                                <img id="userimg" src="{{.imgurl}}" height="230" width="230">
+                                <div class="padding-top-20 padding-bottom-5">
+                                    工号：{{.user.Empnum}}
+                                </div>
+                                <div class="">
+                                    {{.GroupName}} / {{.RoleName}}
+                                </div>
+                            </div>
+                            <div style="width: 230px;">
+                                <div class="padding-30">
+                                    <a href="../user/edit?id={{.user.Id}}" class="btn btn-primary btn-sm edit">编辑</a>
+                                    <a href="javascript:delUser({{.user.Id}})" class="btn btn-danger btn-sm delete">删除</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <table class="table table-hover" id="userinfo">
+                                <thead>
+                                    <tr role="row" class="tableTheadbg">
+                                        <th>账户状态</th>
+                                        <th>账户</th>
+                                        <th>工号</th>
+                                        <th>姓名</th>
+                                        <th>公司名称</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{.StatusName}}</td>
+                                        <td>{{.user.Username}}</td>
+                                        <td>{{.user.Empnum}}</td>
+                                        <td>{{.user.Nickname}}</td>
+                                        <td>{{.user.Companyname}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="margin-bottom-10"></div>
+                        <div class="row">
+                            <table class="table table-hover" id="resourceinfo">
+                                <thead>
+                                    <tr role="row" class="tableTheadbg">
+                                        <th>资源总数</th>
+                                        <th>已使用资源</th>
+                                        <th>已有设备数</th>
+                                        <th>查看数据统计</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{.UploadTotalCount}}</td>
+                                        <td>{{.DownTotalCount}}</td>
+                                        <td>{{.Deviceconut}}</td>
+                                        <td>0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="margin-bottom-10"></div>
+                        <div class="row">
+                            <table class="table table-hover" id="simpledatatable">
+                                <thead>
+                                    <tr role="row" class="tableTheadbg">
+                                        <th>注册时间</th>
+                                        <th>最后登录</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{.CreateTime}}</td>
+                                        <td>{{.LastLoginTime}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        var userimg = $("#userimg").attr("src");
+        if (userimg == "" || userimg == null) {
+            $("#userimg").attr("src", "/static/img/avatars/userimg.jpg");
+        }
+    });
+
+    // 删除用户
+    function delUser(id) {
+        bootbox.confirm({
+            title: "删除用户",
+            message: "确认删除用户吗？",
+            buttons: {
+                confirm: {
+                    label: "确认",
+                    className: "btn-sm btn-primary"
+                },
+                cancel: {
+                    label: "取消",
+                    className: "btn-sm btn-default"
+                }
+            },
+            callback: function(result){
+                if (result) {
+                    $.ajax({
+                        url: '../user/del',
+                        type: 'post',
+                        data: {
+                            id: id
+                        },
+                        success: function(data) {
+                            if (data.Status) {
+                                location.href = "../user/list";
+                            } else {
+                                location.href = "../user/list";
+                            }
+                        },
+                        error: function() {
+                            bootbox.alert({
+                                title : "提示信息",
+                                message: "网络错误",
+                                className: 'modal-danger'
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+</script>
